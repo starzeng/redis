@@ -13,9 +13,13 @@ import com.starzeng.redis.utils.RedisObject;
 public class Test {
 
 	public static void main(String[] args) {
-		// saveOrUpdate();
-//		batchSaveOrUpdate();
-		
+		long start = System.currentTimeMillis();
+		// saveOrUpdate();// Pipelined SET: 0.31 seconds
+		// batchSaveOrUpdate();// Pipelined SET: 8.808 seconds
+		// findOne();// Pipelined SET: 0.364 seconds
+		findAll();// Pipelined SET: 13.296 seconds
+		long end = System.currentTimeMillis();
+		System.out.println("Pipelined SET: " + ((end - start) / 1000.0) + " seconds");
 	}
 
 	public static void saveOrUpdate() {
@@ -40,7 +44,6 @@ public class Test {
 			user.setName("StarZeng" + i);
 			user.setTel("186***" + i);
 			user.setMoney(1.00 + i);
-			;
 			lists.add(new RedisObject("User:" + i, user));
 		}
 		try {
@@ -50,7 +53,30 @@ public class Test {
 			e.printStackTrace();
 		}
 	}
-	
-	
 
+	public static void findOne() {
+		try {
+			User user = (User) RedisCURD.findOne("User:100293");
+			System.out.println(user);
+		} catch (IllegalAccessException | InstantiationException | InvocationTargetException | ClassNotFoundException
+				| IntrospectionException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void findAll() {
+		try {
+			List<?> lists = RedisCURD.findAll("User:*");
+			System.out.println(lists.size());
+			User user;
+			for (int i = 80; i < 90; i++) {
+//				user = (User) lists.get(i);
+				System.out.println(lists.get(i));
+
+			}
+		} catch (IllegalAccessException | InstantiationException | InvocationTargetException | ClassNotFoundException
+				| IntrospectionException | IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

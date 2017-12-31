@@ -112,29 +112,29 @@ public class RedisCURD {
 			InvocationTargetException, ClassNotFoundException, IntrospectionException, IOException {
 		Jedis jedis = JedisPoolUtils.get();
 
-		Set<byte[]> keySets = jedis.keys(keys.getBytes());
-		Pipeline pipeline = jedis.pipelined();
-		for (byte[] key : keySets) {
-			pipeline.hgetAll(key);
-		}
-		List<Object> lists = pipeline.syncAndReturnAll();
-		pipeline.close();
-		JedisPoolUtils.close(jedis);
+//		Set<byte[]> keySets = jedis.keys(keys.getBytes());
+//		Pipeline pipeline = jedis.pipelined();
+//		for (byte[] key : keySets) {
+//			pipeline.hgetAll(key);
+//		}
+//		List<Object> lists = pipeline.syncAndReturnAll();
+//		pipeline.close();
+//		JedisPoolUtils.close(jedis);
+//
+//		List<Object> ls = new ArrayList<>();
+//		for (Object o : lists) {
+//			ls.add(ObjectHashMapper.fromHash((Map<byte[], byte[]>) o));
+//		}
+		 Set<byte[]> keySets = jedis.keys(keys.getBytes(StandardCharsets.UTF_8));
+		 Pipeline pipeline = jedis.pipelined();
+		 for (byte[] key : keySets) {
+		 pipeline.hgetAll(key);
+		 }
+		 List<Object> lists = pipeline.syncAndReturnAll();
+		 pipeline.close();
+		 JedisPoolUtils.close(jedis);
 
-		List<Object> ls = new ArrayList<>();
-		for (Object o : lists) {
-			ls.add(ObjectHashMapper.fromHash((Map<byte[], byte[]>) o));
-		}
-		// Set<byte[]> keySets = jedis.keys(keys.getBytes(StandardCharsets.UTF_8));
-		// Pipeline pipeline = jedis.pipelined();
-		// for (byte[] key : keySets) {
-		// pipeline.hgetAll(key);
-		// }
-		// List<Object> lists = pipeline.syncAndReturnAll();
-		// pipeline.close();
-		// JedisPoolUtils.close(jedis);
-
-		return ls;
+		return lists;
 	}
 
 	/**
