@@ -3,7 +3,6 @@ package com.starzeng.redis.utils;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ import redis.clients.jedis.Pipeline;
  * @author StarZeng
  *
  */
-public class RedisCURD {
+public class RedisCURD2 {
 
 	/**
 	 * 添加/修改
@@ -37,7 +36,7 @@ public class RedisCURD {
 	public static boolean saveOrUpdate(String key, Object object)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException {
 		Jedis jedis = JedisPoolUtils.get();
-		jedis.hmset(key.getBytes(StandardCharsets.UTF_8), ObjectHashMapper.toHash(object));
+		jedis.hmset(key, ObjectHashMapper2.toHash(object));
 		JedisPoolUtils.close(jedis);
 		return true;
 	}
@@ -58,11 +57,11 @@ public class RedisCURD {
 	public static boolean batchSaveOrUpdate(List<RedisObject> lists) throws IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, IntrospectionException, IOException {
 		Jedis jedis = JedisPoolUtils.get();
-		Map<byte[], byte[]> hashMap = null;
+		Map<String, String> hashMap = null;
 		Pipeline pipeline = jedis.pipelined();
 		for (RedisObject redisObject : lists) {
-			hashMap = ObjectHashMapper.toHash(redisObject.getObject());
-			pipeline.hmset(redisObject.getKey().getBytes(StandardCharsets.UTF_8), hashMap);
+			hashMap = ObjectHashMapper2.toHash(redisObject.getObject());
+			pipeline.hmset(redisObject.getKey(), hashMap);
 		}
 		pipeline.syncAndReturnAll();
 		pipeline.close();
@@ -87,9 +86,9 @@ public class RedisCURD {
 			InvocationTargetException, ClassNotFoundException, IntrospectionException {
 		Object object;
 		Jedis jedis = JedisPoolUtils.get();
-		Map<byte[], byte[]> map = jedis.hgetAll(key.getBytes(StandardCharsets.UTF_8));
+		Map<String, String> map = jedis.hgetAll(key);
 		JedisPoolUtils.close(jedis);
-		object = ObjectHashMapper.fromHash(map);
+		object = ObjectHashMapper2.fromHash(map);
 		return object;
 	}
 
@@ -111,11 +110,12 @@ public class RedisCURD {
 	@SuppressWarnings("unchecked")
 	public static List<Object> findAll(String keys) throws IllegalAccessException, InstantiationException,
 			InvocationTargetException, ClassNotFoundException, IntrospectionException, IOException {
+
 		Jedis jedis = JedisPoolUtils.get();
 
-		Set<byte[]> keySets = jedis.keys(keys.getBytes());
+		Set<String> keySets = jedis.keys(keys);
 		Pipeline pipeline = jedis.pipelined();
-		for (byte[] key : keySets) {
+		for (String key : keySets) {
 			pipeline.hgetAll(key);
 		}
 		List<Object> lists = pipeline.syncAndReturnAll();
@@ -124,9 +124,17 @@ public class RedisCURD {
 
 		List<Object> ls = new ArrayList<>();
 		for (Object o : lists) {
-			ls.add(ObjectHashMapper.fromHash((Map<byte[], byte[]>) o));
+			ls.add(ObjectHashMapper2.fromHash((Map<String, String>) o));
 		}
 
+		// Set<String> keySets = jedis.keys(keys);
+		// Pipeline pipeline = jedis.pipelined();
+		// for (String key : keySets) {
+		// pipeline.hgetAll(key);
+		// }
+		// List<Object> lists = pipeline.syncAndReturnAll();
+		// pipeline.close();
+		// JedisPoolUtils.close(jedis);
 		return ls;
 	}
 
@@ -140,7 +148,7 @@ public class RedisCURD {
 	public static boolean delete(String... keys) {
 		Jedis jedis = JedisPoolUtils.get();
 		for (String key : keys) {
-			jedis.del(key.getBytes(StandardCharsets.UTF_8));
+			jedis.del(key);
 		}
 		JedisPoolUtils.close(jedis);
 		return true;
