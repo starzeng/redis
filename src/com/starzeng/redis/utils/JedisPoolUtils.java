@@ -29,12 +29,12 @@ public class JedisPoolUtils {
 		// 读取相应的值
 		JedisPoolConfig config = new JedisPoolConfig();
 
-		config.setMaxIdle(Integer.parseInt(bundle.getString("redis.maxIdle")));//
 		// 最大空闲连接数
-		config.setMaxTotal(Integer.parseInt(bundle.getString("redis.maxTotal")));//
+		config.setMaxIdle(Integer.parseInt(bundle.getString("redis.maxIdle")));
 		// 最大连接数
-		config.setMaxWaitMillis(Integer.parseInt(bundle.getString("redis.maxWaitMillis")));//
+		config.setMaxTotal(Integer.parseInt(bundle.getString("redis.maxTotal")));
 		// 最大等待超时时间
+		config.setMaxWaitMillis(Integer.parseInt(bundle.getString("redis.maxWaitMillis")));
 
 		pool = new JedisPool(config, bundle.getString("redis.host"), Integer.parseInt(bundle.getString("redis.port")));
 	}
