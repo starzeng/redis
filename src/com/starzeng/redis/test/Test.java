@@ -68,12 +68,12 @@ public class Test {
 		try {
 			List<?> lists = RedisCURD.findAll("U:*");
 			System.out.println(lists.size());
-//			User user;
-//			for (int i = 80; i < 90; i++) {
-////				user = (User) lists.get(i);
-//				System.out.println(lists.get(i));
-//
-//			}
+			// User user;
+			// for (int i = 80; i < 90; i++) {
+			//// user = (User) lists.get(i);
+			// System.out.println(lists.get(i));
+			//
+			// }
 		} catch (IllegalAccessException | InstantiationException | InvocationTargetException | ClassNotFoundException
 				| IntrospectionException | IOException e) {
 			e.printStackTrace();
