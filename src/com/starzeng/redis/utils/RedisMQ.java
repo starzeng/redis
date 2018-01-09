@@ -39,7 +39,10 @@ public class RedisMQ {
 		Jedis jedis = JedisPoolUtils.get();
 		List<String> lists = jedis.brpop(30, key);
 		JedisPoolUtils.close(jedis);
-		return lists.get(1);
+		if (lists.size() > 0) {
+			return lists.get(1);
+		}
+		return null;
 	}
 
 }
