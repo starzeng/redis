@@ -1,7 +1,5 @@
 package com.starzeng.redis.utils;
 
-import java.util.List;
-
 import redis.clients.jedis.Jedis;
 
 /**
@@ -37,12 +35,9 @@ public class RedisMQ {
 	 */
 	public static String get(String key) {
 		Jedis jedis = JedisPoolUtils.get();
-		List<String> lists = jedis.brpop(30, key);
+		String str = jedis.rpop(key);
 		JedisPoolUtils.close(jedis);
-		if (lists.size() > 0) {
-			return lists.get(1);
-		}
-		return null;
+		return str;
 	}
 
 }

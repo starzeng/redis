@@ -109,24 +109,38 @@ public class RedisCURD {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Object> findAll(String keys) throws IllegalAccessException, InstantiationException,
-			InvocationTargetException, ClassNotFoundException, IntrospectionException, IOException {
+	public static List<Object> findAll(String keys) {
 		Jedis jedis = JedisPoolUtils.get();
 
-		Set<byte[]> keySets = jedis.keys(keys.getBytes());
+		Set<byte[]> keySets = jedis.keys(keys.getBytes(StandardCharsets.UTF_8));
 		Pipeline pipeline = jedis.pipelined();
 		for (byte[] key : keySets) {
 			pipeline.hgetAll(key);
 		}
 		List<Object> lists = pipeline.syncAndReturnAll();
-		pipeline.close();
+		try {
+			pipeline.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		JedisPoolUtils.close(jedis);
 
 		List<Object> ls = new ArrayList<>();
 		for (Object o : lists) {
-			ls.add(ObjectHashMapper.fromHash((Map<byte[], byte[]>) o));
+			try {
+				ls.add(ObjectHashMapper.fromHash((Map<byte[], byte[]>) o));
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (IntrospectionException e) {
+				e.printStackTrace();
+			}
 		}
-
 		return ls;
 	}
 
@@ -145,5 +159,4 @@ public class RedisCURD {
 		JedisPoolUtils.close(jedis);
 		return true;
 	}
-
 }
